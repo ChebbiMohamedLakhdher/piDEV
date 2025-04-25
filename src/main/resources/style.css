@@ -1,0 +1,250 @@
+.ButtoncolorBackground{
+    -fx-background-color: linear-gradient( to right top,#facd68, #b99a45);
+}
+
+.PageBackgroundColor{
+    -fx-background-color: #e8e8e8;
+}
+
+.SideBarColor{
+    -fx-background-color: #f7e8d3;
+}
+
+.DashboardSideBarColor{
+    -fx-background-color: #00204A;
+}
+
+.list-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: #f5f5f5;
+    -fx-cursor: hand;
+}
+
+.list-cell:empty {
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.cases-list {
+    -fx-background-color: transparent;
+    -fx-padding: 20;
+    -fx-border-width: 0;
+}
+
+.case-item {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 1);
+    -fx-padding: 15;
+    -fx-margin: 0 0 15 0;
+}
+
+.case-list-item:hover {
+    -fx-background-color: #faac44;
+    -fx-cursor: hand;
+}
+.case-item:hover {
+    -fx-effect: dropshadow(gaussian, rgba(250, 172, 68, 1), 8, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.case-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #2d3436;
+}
+
+.case-detail {
+    -fx-font-size: 13px;
+    -fx-text-fill: #636e72;
+    -fx-padding: 3 0 0 0;
+}
+
+.icon {
+    -fx-font-family: "Font Awesome 5 Free Solid";
+    -fx-font-size: 14px;
+    -fx-text-fill: #74b9ff;
+}
+
+.list-view,
+.list-cell,
+.vbox,
+.hbox {
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* Remove default ListView borders */
+.list-view .scroll-bar:vertical,
+.list-view .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+/* Optional: Remove cell selection highlight */
+.list-cell:filled:selected {
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+}
+.back-button {
+    -fx-background-color: linear-gradient( to right top,#facd68, #b99a45);
+    -fx-text-fill: #000000;
+    -fx-font-size: 14px;
+    -fx-padding: 8 15;
+    -fx-background-radius: 5;
+}
+
+.back-button:hover {
+    -fx-background-color: #58b7da;
+}
+
+.Navbar-back-button:hover {
+    -fx-background-color: #facd68;
+    -fx-cursor: hand;
+}
+
+.Admin-Navbar-back-button:hover {
+    -fx-background-color: #f1580c;
+    -fx-cursor: hand;
+}
+
+
+.case-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3436;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #2d3436;
+    -fx-padding: 10 0 5 0;
+}
+
+.detail-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #636e72;
+    -fx-padding: 5 0;
+}
+
+.description-text {
+    -fx-font-size: 15px;
+    -fx-text-fill: #2d3436;
+    -fx-line-spacing: 5px;
+    -fx-padding: 0 0 20 0;
+}
+
+.separator {
+    -fx-padding: 10 0;
+}
+
+/* Chart Styling */
+.axis-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.chart-legend {
+    -fx-font-size: 12px;
+}
+
+/* Case List Items */
+.list-cell {
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 0;
+}
+
+/* Buttons */
+.button {
+    -fx-background-radius: 4;
+    -fx-padding: 5 10;
+    -fx-cursor: hand;
+}
+
+#statusBtn {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+}
+
+#visibilityBtn {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+}
+
+#deleteBtn {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+}
+
+/* Color Palette */
+.root {
+    -fx-primary: #f57938;
+    -fx-secondary: #00204a;
+    -fx-accent1: #f79a6b;
+    -fx-accent2: #f1580c;
+    -fx-background: #ffffff;
+    -fx-light: #e6e6e6;
+}
+
+/* ListView Styling */
+
+
+.list-view {
+    -fx-background-color: -fx-background;
+    -fx-border-color: -fx-light;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+}
+
+.list-cell {
+    -fx-background-color: -fx-background;
+    -fx-padding: 15;
+    -fx-border-color: -fx-light;
+    -fx-border-width: 0 0 1 0;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: -fx-light;
+}
+
+/* Button Styling */
+.status-btn {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 5 15;
+}
+
+.visibility-btn {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 5 15;
+}
+
+.delete-btn {
+    -fx-background-color: -fx-accent2;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 5 15;
+}
+
+/* Text Styling */
+.case-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-secondary;
+}
+
+.case-detail {
+    -fx-font-size: 12px;
+    -fx-text-fill: -fx-secondary;
+}

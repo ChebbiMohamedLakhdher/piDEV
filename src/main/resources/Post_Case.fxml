@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="688.0" prefWidth="933.0" styleClass="PageBackgroundColor" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.PostCaseController">
+   <children>
+      <Text layoutX="196.0" layoutY="99.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Title" wrappingWidth="102.44140625">
+         <font>
+            <Font name="Consolas" size="16.0" />
+         </font>
+      </Text>
+      <TextField fx:id="titleField" layoutX="188.0" layoutY="104.0" prefHeight="26.0" prefWidth="570.0" promptText="Enter Case Title" />
+      <Text layoutX="196.0" layoutY="163.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Location" wrappingWidth="134.44140625">
+         <font>
+            <Font name="Consolas" size="16.0" />
+         </font></Text>
+      <TextField fx:id="locationField" layoutX="188.0" layoutY="167.0" prefHeight="26.0" prefWidth="570.0" promptText="Enter Location" />
+      <Text layoutX="196.0" layoutY="217.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Case Type" wrappingWidth="165.64141845703125">
+         <font>
+            <Font name="Consolas" size="16.0" />
+         </font></Text>
+      <ComboBox fx:id="typeDropdown" layoutX="188.0" layoutY="221.0" maxHeight="36.0" maxWidth="192.0" prefHeight="25.0" prefWidth="192.0" promptText="Choose Case Type" />
+      <Text layoutX="196.0" layoutY="289.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Visibility" wrappingWidth="102.44140625">
+         <font>
+            <Font name="Consolas" size="16.0" />
+         </font></Text>
+      <ComboBox fx:id="visibilityDropdown" layoutX="188.0" layoutY="294.0" prefHeight="49.0" prefWidth="192.0" promptText="Set Visibility" />
+      <Text layoutX="196.0" layoutY="361.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Telephone" wrappingWidth="125.64141845703125">
+         <font>
+            <Font name="Consolas" size="16.0" />
+         </font></Text>
+      <TextField fx:id="telephoneField" layoutX="188.0" layoutY="366.0" prefHeight="26.0" prefWidth="570.0" promptText="Enter Your Phone Number" />
+      <Text layoutX="196.0" layoutY="411.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Description" wrappingWidth="134.44140625">
+         <font>
+            <Font name="Consolas" size="16.0" />
+         </font></Text>
+      <TextArea fx:id="descriptionArea" layoutX="188.0" layoutY="416.0" prefHeight="200.0" prefWidth="570.0" promptText="Write about your case.." />
+      <Button layoutX="704.0" layoutY="639.0" mnemonicParsing="false" onAction="#handleSubmit" styleClass="ButtoncolorBackground" stylesheets="@style.css" text="Submit" />
+      <Button layoutX="14.0" layoutY="17.0" onAction="#handleBack" prefHeight="24.0" prefWidth="94.0" styleClass="back-button" text="← Return" />
+      <ImageView fitHeight="119.0" fitWidth="200.0" layoutX="362.0" layoutY="-24.0">
+         <image>
+            <Image url="@images/LegalLink-Bg.png" />
+         </image>
+      </ImageView>
+   </children>
+</AnchorPane>

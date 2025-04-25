@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="688" prefWidth="933" styleClass="SideBarColor" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.HomePageController">
+
+    <ImageView fitHeight="106" fitWidth="200" layoutY="-1">
+        <image>
+            <Image url="@images/LegalLink-NoBg.png" />
+        </image>
+    </ImageView>
+    <Button layoutY="257.0" mnemonicParsing="false" onAction="#handleDiscover" prefHeight="44.0" prefWidth="200.0" stylesheets="@style.css" text="Discover">
+        <styleClass>
+            <String fx:value="SideBarColor" />
+            <String fx:value="Navbar-back-button" />
+        </styleClass>
+        <font>
+            <Font name="Consolas" size="19.0" />
+        </font>
+    </Button>
+    <Button layoutX="-1.0" layoutY="104.0" mnemonicParsing="false" onAction="#handlePostCase" prefHeight="60.0" prefWidth="200.0" stylesheets="@style.css" text="+ Post a Case">
+        <styleClass>
+            <String fx:value="SideBarColor" />
+            <String fx:value="Navbar-back-button" />
+        </styleClass>
+        <font>
+            <Font name="Consolas" size="14.0" />
+        </font>
+    </Button>
+    <Button layoutY="336.0" mnemonicParsing="false" onAction="#handleCases" prefHeight="44.0" prefWidth="200.0" stylesheets="@style.css" text="Cases">
+        <styleClass>
+            <String fx:value="SideBarColor" />
+            <String fx:value="Navbar-back-button" />
+        </styleClass>
+        <font>
+            <Font name="Consolas" size="19.0" />
+        </font>
+    </Button>
+    <Line endX="-2.0000152587890625" layoutX="200.0" layoutY="105.0" startX="-200.0" />
+    <Line endX="-2.0000152587890625" layoutX="201.0" layoutY="164.0" startX="-200.0" />
+    <Button layoutY="598.0" mnemonicParsing="false" onAction="#handleSettings" prefHeight="60.0" prefWidth="200.0" stylesheets="@style.css" text="Settings">
+        <styleClass>
+            <String fx:value="SideBarColor" />
+            <String fx:value="Navbar-back-button" />
+        </styleClass>
+        <font>
+            <Font name="Consolas" size="14.0" />
+        </font>
+    </Button>
+    <Line endX="-2.0000152587890625" layoutX="201.0" layoutY="598.0" startX="-200.0" />
+    <Line endX="-2.0000152587890625" layoutX="201.0" layoutY="658.0" startX="-200.0" />
+    <Button layoutX="-1.0" layoutY="416.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="200.0" stylesheets="@style.css" text="idk">
+        <styleClass>
+            <String fx:value="SideBarColor" />
+            <String fx:value="Navbar-back-button" />
+        </styleClass>
+        <font>
+            <Font name="Consolas" size="19.0" />
+        </font>
+    </Button>
+   <ListView fx:id="listView" layoutX="199.0" prefHeight="688.0" prefWidth="738.0" />
+   <Text layoutX="386.0" layoutY="99.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome to Legal Link !" wrappingWidth="363.20001220703125">
+      <font>
+         <Font name="System Bold" size="30.0" />
+      </font>
+   </Text>
+   <ImageView fitHeight="53.0" fitWidth="92.0" layoutX="509.0" layoutY="14.0">
+      <image>
+         <Image url="@images/gold-link.png" />
+      </image>
+   </ImageView>
+</AnchorPane>

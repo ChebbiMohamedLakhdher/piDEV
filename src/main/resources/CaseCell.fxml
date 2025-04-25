@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/22.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      styleClass="case-item"
+      spacing="5"
+      prefWidth="700"
+      prefHeight="80">
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label fx:id="titleLabel" styleClass="case-title" />
+        <Label fx:id="typeLabel" styleClass="case-tag" />
+    </HBox>
+
+    <HBox spacing="20">
+        <Label fx:id="locationLabel" styleClass="case-detail">
+            <graphic>
+                <Label text="📍" styleClass="case-icon" />
+            </graphic>
+        </Label>
+        <Label fx:id="dateLabel" styleClass="case-detail">
+            <graphic>
+                <Label text="📅" styleClass="case-icon" />
+            </graphic>
+        </Label>
+    </HBox>
+</VBox>
