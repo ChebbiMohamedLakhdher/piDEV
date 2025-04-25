@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 public class DatabaseConnection {
     public Connection databaseLink;
 
-    public Connection getConnection() {
+    public static Connection getConnection() {
         String databaseName = "legallink";  // Change this to your database name
         String databaseUser = "root";               // Default XAMPP username is 'root'
         String databasePassword = "";               // Default XAMPP password is empty

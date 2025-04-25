@@ -1,5 +1,6 @@
 package com.example.pidev;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -13,6 +14,12 @@ import java.io.File;
 import java.net.URL;
 import java.sql.*;
 import java.util.ResourceBundle;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 
 public class LoginController implements Initializable {
     @FXML private Label loginMessageLabel;
@@ -20,6 +27,11 @@ public class LoginController implements Initializable {
     @FXML private TextField emailTextField;
     @FXML private PasswordField enterPasswordField;
     @FXML private Button signupButton;
+
+    // Password hashing constants (must match SignupController)
+    private static final int ITERATIONS = 65536;
+    private static final int KEY_LENGTH = 256;
+    private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -81,10 +93,10 @@ public class LoginController implements Initializable {
 
             try (ResultSet queryResult = statement.executeQuery()) {
                 if (queryResult.next()) {
-                    String storedPassword = queryResult.getString("password");
+                    String storedHash = queryResult.getString("password");
                     String roles = queryResult.getString("roles");
 
-                    if (storedPassword != null && storedPassword.equals(enterPasswordField.getText())) {
+                    if (storedHash != null && verifyPassword(enterPasswordField.getText(), storedHash)) {
                         if (roles != null && roles.contains("ADMIN")) {
                             loadDashboard("/com/example/pidev/dashboard_admin.fxml", "Admin Dashboard");
                         } else {
@@ -107,6 +119,38 @@ public class LoginController implements Initializable {
         }
     }
 
+    // Password verification method (copied from SignupController)
+    private boolean verifyPassword(String password, String storedHash) {
+        try {
+            String[] parts = storedHash.split(":");
+            byte[] salt = Base64.getDecoder().decode(parts[0]);
+            byte[] storedPassword = Base64.getDecoder().decode(parts[1]);
+
+            PBEKeySpec spec = new PBEKeySpec(
+                    password.toCharArray(),
+                    salt,
+                    ITERATIONS,
+                    KEY_LENGTH
+            );
+
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
+            byte[] testHash = factory.generateSecret(spec).getEncoded();
+
+            return slowEquals(storedPassword, testHash);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException("Error verifying password", e);
+        }
+    }
+
+    // Constant-time comparison to prevent timing attacks (copied from SignupController)
+    private static boolean slowEquals(byte[] a, byte[] b) {
+        int diff = a.length ^ b.length;
+        for(int i = 0; i < a.length && i < b.length; i++) {
+            diff |= a[i] ^ b[i];
+        }
+        return diff == 0;
+    }
+
     private void loadDashboard(String fxmlPath, String title) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
@@ -122,7 +166,6 @@ public class LoginController implements Initializable {
         }
     }
 
-
     @FXML
     private void handleSignupButton(javafx.event.ActionEvent event) {
         try {
@@ -133,6 +176,20 @@ public class LoginController implements Initializable {
             stage.show();
         } catch (Exception e) {
             loginMessageLabel.setText("Error loading signup form: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void handleForgotPassword(ActionEvent actionEvent) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/com/example/pidev/reset_password.fxml"));
+            Stage stage = (Stage) emailTextField.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Reset Password");
+            stage.show();
+        } catch (Exception e) {
+            loginMessageLabel.setText("Error loading reset password form");
             e.printStackTrace();
         }
     }

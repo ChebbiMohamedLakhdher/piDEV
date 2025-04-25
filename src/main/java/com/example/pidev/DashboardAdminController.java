@@ -4,20 +4,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.Callback;
 
 import java.io.File;
 import java.sql.*;
 
 public class DashboardAdminController {
-    @FXML private TableView<User> usersTable;
-    @FXML private TableColumn<User, Integer> idColumn;
-    @FXML private TableColumn<User, String> nameColumn;
-    @FXML private TableColumn<User, String> emailColumn;
-    @FXML private TableColumn<User, String> phoneColumn;
-    @FXML private TableColumn<User, String> roleColumn;
+    @FXML private ListView<User> usersListView;
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterComboBox;
     @FXML private Label statusLabel;
@@ -31,23 +26,38 @@ public class DashboardAdminController {
         File brandingFile = new File("images/Logo.png");
         Image brandingImage = new Image(brandingFile.toURI().toString());
         brandingImageView.setImage(brandingImage);
-        setupTableColumns();
+        setupListViewCellFactory();
         setupFilterComboBox();
         loadUsersFromDatabase();
         setupSearchFunctionality();
     }
 
-    private void setupTableColumns() {
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-        phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
-        roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
+    private void setupListViewCellFactory() {
+        usersListView.setCellFactory(new Callback<ListView<User>, ListCell<User>>() {
+            @Override
+            public ListCell<User> call(ListView<User> param) {
+                return new ListCell<User>() {
+                    @Override
+                    protected void updateItem(User user, boolean empty) {
+                        super.updateItem(user, empty);
+                        if (empty || user == null) {
+                            setText(null);
+                        } else {
+                            setText(String.format("%s (%s) - %s - %s",
+                                    user.getName(),
+                                    user.getEmail(),
+                                    user.getPhoneNumber(),
+                                    user.getRole()));
+                        }
+                    }
+                };
+            }
+        });
     }
 
     private void setupFilterComboBox() {
         filterComboBox.setItems(FXCollections.observableArrayList(
-                "All Users", "CLIENT", "ADMIN"
+                "All Users", "CLIENT", "LAWYER"
         ));
         filterComboBox.getSelectionModel().selectFirst();
         filterComboBox.setOnAction(e -> filterUsers());
@@ -64,7 +74,7 @@ public class DashboardAdminController {
             while (rs.next()) {
                 String rolesJson = rs.getString("roles");
                 // Convert JSON array to display role
-                String roleDisplay = rolesJson.contains("ROLE_ADMIN") ? "ADMIN" : "CLIENT";
+                String roleDisplay = rolesJson.contains("ROLE_ADMIN") ? "LAWYER" : "CLIENT";
 
                 allUsers.add(new User(
                         rs.getInt("id"),
@@ -75,7 +85,7 @@ public class DashboardAdminController {
                 ));
             }
 
-            usersTable.setItems(allUsers);
+            usersListView.setItems(allUsers);
             statusLabel.setText("Loaded " + allUsers.size() + " users");
 
         } catch (SQLException e) {
@@ -111,13 +121,13 @@ public class DashboardAdminController {
             return matchesSearch && matchesRole;
         });
 
-        usersTable.setItems(filteredUsers);
+        usersListView.setItems(filteredUsers);
         statusLabel.setText("Showing " + filteredUsers.size() + " of " + allUsers.size() + " users");
     }
 
     @FXML
     private void handleDeleteUser() {
-        User selectedUser = usersTable.getSelectionModel().getSelectedItem();
+        User selectedUser = usersListView.getSelectionModel().getSelectedItem();
         if (selectedUser == null) {
             showAlert("No Selection", "No User Selected", "Please select a user to delete.");
             return;
@@ -152,17 +162,17 @@ public class DashboardAdminController {
 
     @FXML
     private void handleChangeRole() {
-        User selectedUser = usersTable.getSelectionModel().getSelectedItem();
+        User selectedUser = usersListView.getSelectionModel().getSelectedItem();
         if (selectedUser == null) {
             showAlert("No Selection", "No User Selected", "Please select a user to change role.");
             return;
         }
 
         String currentRole = selectedUser.getRole();
-        String newDisplayRole = currentRole.equals("ADMIN") ? "CLIENT" : "ADMIN";
+        String newDisplayRole = currentRole.equals("LAWYER") ? "CLIENT" : "LAWYER";
 
         // Create the proper JSON array for the database
-        String newDbRole = newDisplayRole.equals("ADMIN")
+        String newDbRole = newDisplayRole.equals("LAWYER")
                 ? "[\"ROLE_ADMIN\"]"
                 : "[\"ROLE_CLIENT\"]";
 
