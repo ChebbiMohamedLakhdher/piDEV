@@ -30,7 +30,7 @@ public class LoginController implements Initializable {
     @FXML private PasswordField enterPasswordField;
     @FXML private Button signupButton;
 
-    // Password hashing constants
+    // Password hashing constants (must match SignupController)
     private static final int ITERATIONS = 65536;
     private static final int KEY_LENGTH = 256;
     private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
@@ -38,7 +38,7 @@ public class LoginController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            File brandingFile = new File("images/LegalLink-NoBg.png");
+            File brandingFile = new File("images/Logo.png");
             Image brandingImage = new Image(brandingFile.toURI().toString());
             brandingImageView.setImage(brandingImage);
         } catch (Exception e) {
@@ -46,7 +46,7 @@ public class LoginController implements Initializable {
         }
 
         // Debug: Check if dashboard file exists
-        debugFileLocation("HomePage.fxml");
+        debugFileLocation("dashboard_admin.fxml");
     }
 
     private void debugFileLocation(String filename) {
@@ -59,7 +59,7 @@ public class LoginController implements Initializable {
 
                 // Try alternative paths
                 System.out.println("Trying absolute path...");
-                url = getClass().getResource("/tn/esprit/views/" + filename);
+                url = getClass().getResource("/com/example/pidev/" + filename);
                 if (url != null) {
                     System.out.println("Found at: " + url);
                 } else {
@@ -88,8 +88,8 @@ public class LoginController implements Initializable {
     private void validateLogin() {
         String verifyLogin = "SELECT password, roles FROM user WHERE email = ?";
 
-        try (Connection connectDB = MyDataBase.getInstance().getCnx();
-             PreparedStatement statement = connectDB.prepareStatement(verifyLogin)) {
+        try (Connection conn = MyDataBase.getInstance().getCnx();
+             PreparedStatement statement = conn.prepareStatement(verifyLogin)) {
 
             statement.setString(1, emailTextField.getText().trim());
 
@@ -99,11 +99,11 @@ public class LoginController implements Initializable {
                     String roles = queryResult.getString("roles");
 
                     if (storedHash != null && verifyPassword(enterPasswordField.getText(), storedHash)) {
-                        if (roles != null && roles.contains("ROLE_ADMIN")) {
-                            loadDashboard("/AdminDashboard.fxml", "Admin Page");
+                        if (roles != null && roles.contains("ADMIN")) {
+                            loadDashboard("/com/example/pidev/dashboard_admin.fxml", "Admin Dashboard");
                         } else {
                             loginMessageLabel.setText("Login Successful");
-                            loadDashboard("/HomePage.fxml", "Home Page");
+                            // loadDashboard("/com/example/pidev/client_dashboard.fxml", "Client Dashboard");
                         }
                     } else {
                         loginMessageLabel.setText("Invalid credentials");
@@ -121,7 +121,7 @@ public class LoginController implements Initializable {
         }
     }
 
-    // Password verification method
+    // Password verification method (copied from SignupController)
     private boolean verifyPassword(String password, String storedHash) {
         try {
             String[] parts = storedHash.split(":");
@@ -144,7 +144,7 @@ public class LoginController implements Initializable {
         }
     }
 
-    // Constant-time comparison to prevent timing attacks
+    // Constant-time comparison to prevent timing attacks (copied from SignupController)
     private static boolean slowEquals(byte[] a, byte[] b) {
         int diff = a.length ^ b.length;
         for(int i = 0; i < a.length && i < b.length; i++) {
@@ -171,7 +171,7 @@ public class LoginController implements Initializable {
     @FXML
     private void handleSignupButton(javafx.event.ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/signup.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/com/example/pidev/signup.fxml"));
             Stage stage = (Stage) signupButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Create New Account");
@@ -185,7 +185,7 @@ public class LoginController implements Initializable {
     @FXML
     public void handleForgotPassword(ActionEvent actionEvent) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/reset_password.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/com/example/pidev/reset_password.fxml"));
             Stage stage = (Stage) emailTextField.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Reset Password");

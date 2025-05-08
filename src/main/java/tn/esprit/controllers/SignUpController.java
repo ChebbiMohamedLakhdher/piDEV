@@ -9,11 +9,18 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
+import tn.esprit.utils.MyDataBase;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.regex.Pattern;
-import tn.esprit.utils.MyDataBase;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 
 public class SignUpController {
     @FXML private TextField nameField;
@@ -27,6 +34,11 @@ public class SignUpController {
     @FXML private Hyperlink loginLink;
     @FXML private ComboBox<String> roleComboBox;
 
+    // Password hashing constants
+    private static final int ITERATIONS = 65536;
+    private static final int KEY_LENGTH = 256;
+    private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
+
     @FXML
     private void initialize() {
         // Phone number input validation (digits only)
@@ -39,7 +51,7 @@ public class SignUpController {
         // Setup role ComboBox with user-friendly display names
         ObservableList<String> roles = FXCollections.observableArrayList(
                 "Client",
-                "Administrator"
+                "Lawyer"
         );
         roleComboBox.setItems(roles);
         roleComboBox.getSelectionModel().selectFirst(); // Default to Client
@@ -50,11 +62,11 @@ public class SignUpController {
         if (!validateInputs()) return;
 
         try {
-            Connection connectDB = MyDataBase.getInstance().getCnx();
+            Connection conn = MyDataBase.getInstance().getCnx();
 
             // Check if email exists
             String checkUserQuery = "SELECT count(1) FROM user WHERE email = ?";
-            PreparedStatement checkStatement = connectDB.prepareStatement(checkUserQuery);
+            PreparedStatement checkStatement = conn.prepareStatement(checkUserQuery);
             checkStatement.setString(1, emailField.getText());
             ResultSet queryResult = checkStatement.executeQuery();
 
@@ -63,16 +75,19 @@ public class SignUpController {
                 return;
             }
 
+            // Hash the password before storing it
+            String hashedPassword = hashPassword(passwordField.getText());
+
             // Get selected role in database format
             String roleDisplayName = roleComboBox.getValue();
             String roleValue = convertRoleToDatabaseFormat(roleDisplayName);
 
-            // Insert new user with role
+            // Insert new user with role and hashed password
             String insertUserQuery = "INSERT INTO user (name, email, password, phonenumber, address, roles) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement insertStatement = connectDB.prepareStatement(insertUserQuery);
+            PreparedStatement insertStatement = conn.prepareStatement(insertUserQuery);
             insertStatement.setString(1, nameField.getText());
             insertStatement.setString(2, emailField.getText());
-            insertStatement.setString(3, passwordField.getText()); // Hash in production!
+            insertStatement.setString(3, hashedPassword);
             insertStatement.setString(4, phoneField.getText());
             insertStatement.setString(5, addressField.getText());
             insertStatement.setString(6, roleValue);
@@ -91,12 +106,68 @@ public class SignUpController {
         }
     }
 
+    // Password hashing method
+    String hashPassword(String password) {
+        try {
+            SecureRandom random = new SecureRandom();
+            byte[] salt = new byte[16];
+            random.nextBytes(salt);
+
+            PBEKeySpec spec = new PBEKeySpec(
+                    password.toCharArray(),
+                    salt,
+                    ITERATIONS,
+                    KEY_LENGTH
+            );
+
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
+            byte[] hash = factory.generateSecret(spec).getEncoded();
+
+            return Base64.getEncoder().encodeToString(salt) + ":" +
+                    Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+
+    // Password verification method (for login)
+    public static boolean verifyPassword(String password, String storedHash) {
+        try {
+            String[] parts = storedHash.split(":");
+            byte[] salt = Base64.getDecoder().decode(parts[0]);
+            byte[] storedPassword = Base64.getDecoder().decode(parts[1]);
+
+            PBEKeySpec spec = new PBEKeySpec(
+                    password.toCharArray(),
+                    salt,
+                    ITERATIONS,
+                    KEY_LENGTH
+            );
+
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
+            byte[] testHash = factory.generateSecret(spec).getEncoded();
+
+            return slowEquals(storedPassword, testHash);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException("Error verifying password", e);
+        }
+    }
+
+    // Constant-time comparison to prevent timing attacks
+    private static boolean slowEquals(byte[] a, byte[] b) {
+        int diff = a.length ^ b.length;
+        for(int i = 0; i < a.length && i < b.length; i++) {
+            diff |= a[i] ^ b[i];
+        }
+        return diff == 0;
+    }
+
     private String convertRoleToDatabaseFormat(String displayName) {
         switch(displayName) {
             case "Client":
                 return "[\"ROLE_CLIENT\"]";
-            case "Administrator":
-                return "[\"ROLE_ADMIN\"]";
+            case "Lawyer":
+                return "[\"ROLE_LAWYER\"]"; // Assuming lawyers should have admin privileges
             default:
                 return "[\"ROLE_CLIENT\"]"; // Default fallback
         }
@@ -174,19 +245,13 @@ public class SignUpController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
     @FXML
     public void handleLoginLink(javafx.event.ActionEvent actionEvent) {
         try {
-            // Load the signup.fxml file
             Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));
-
-            // Create new scene
             Scene scene = new Scene(root);
-
-            // Get the current stage
             Stage stage = (Stage) signupButton.getScene().getWindow();
-
-            // Set the new scene
             stage.setScene(scene);
             stage.setTitle("");
             stage.show();
