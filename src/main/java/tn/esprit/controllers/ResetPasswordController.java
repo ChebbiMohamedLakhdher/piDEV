@@ -1,6 +1,5 @@
 package tn.esprit.controllers;
 
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,20 +21,8 @@ import java.util.logging.Logger;
 import javafx.stage.Stage;
 import tn.esprit.utils.MyDataBase;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
-
 public class ResetPasswordController {
     private static final Logger logger = Logger.getLogger(ResetPasswordController.class.getName());
-
-    // Password hashing constants
-    private static final int ITERATIONS = 65536;
-    private static final int KEY_LENGTH = 256;
-    private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
 
     // FXML components
     @FXML private TextField emailField;
@@ -109,9 +96,7 @@ public class ResetPasswordController {
                 return;
             }
 
-            String hashedPassword = hashPassword(newPassword);
-            updatePassword(conn, email, hashedPassword);
-
+            updatePassword(conn, email, newPassword); // Storing plain text password
             showSuccess("Password reset successfully!");
             disablePasswordResetFields();
 
@@ -119,59 +104,6 @@ public class ResetPasswordController {
             showError("Database error. Please try again later.");
             logger.log(Level.SEVERE, "Database error in handleResetPassword", e);
         }
-    }
-
-    private String hashPassword(String password) {
-        try {
-            SecureRandom random = new SecureRandom();
-            byte[] salt = new byte[16];
-            random.nextBytes(salt);
-
-            PBEKeySpec spec = new PBEKeySpec(
-                    password.toCharArray(),
-                    salt,
-                    ITERATIONS,
-                    KEY_LENGTH
-            );
-
-            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
-            byte[] hash = factory.generateSecret(spec).getEncoded();
-
-            return Base64.getEncoder().encodeToString(salt) + ":" +
-                    Base64.getEncoder().encodeToString(hash);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException("Error hashing password", e);
-        }
-    }
-
-    public static boolean verifyPassword(String password, String storedHash) {
-        try {
-            String[] parts = storedHash.split(":");
-            byte[] salt = Base64.getDecoder().decode(parts[0]);
-            byte[] storedPassword = Base64.getDecoder().decode(parts[1]);
-
-            PBEKeySpec spec = new PBEKeySpec(
-                    password.toCharArray(),
-                    salt,
-                    ITERATIONS,
-                    KEY_LENGTH
-            );
-
-            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
-            byte[] testHash = factory.generateSecret(spec).getEncoded();
-
-            return slowEquals(storedPassword, testHash);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException("Error verifying password", e);
-        }
-    }
-
-    private static boolean slowEquals(byte[] a, byte[] b) {
-        int diff = a.length ^ b.length;
-        for(int i = 0; i < a.length && i < b.length; i++) {
-            diff |= a[i] ^ b[i];
-        }
-        return diff == 0;
     }
 
     private javax.mail.Session createEmailSession() {
@@ -283,10 +215,10 @@ public class ResetPasswordController {
         }
     }
 
-    private void updatePassword(Connection conn, String email, String hashedPassword) throws SQLException {
+    private void updatePassword(Connection conn, String email, String password) throws SQLException {
         String sql = "UPDATE user SET password = ?, reset_token = NULL, token_expiry = NULL WHERE email = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, hashedPassword);
+            stmt.setString(1, password); // Storing plain text password
             stmt.setString(2, email);
             stmt.executeUpdate();
         }

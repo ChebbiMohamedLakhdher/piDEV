@@ -15,12 +15,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.regex.Pattern;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
 
 public class SignUpController {
     @FXML private TextField nameField;
@@ -33,11 +27,6 @@ public class SignUpController {
     @FXML private Button clearButton;
     @FXML private Hyperlink loginLink;
     @FXML private ComboBox<String> roleComboBox;
-
-    // Password hashing constants
-    private static final int ITERATIONS = 65536;
-    private static final int KEY_LENGTH = 256;
-    private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
 
     @FXML
     private void initialize() {
@@ -75,19 +64,16 @@ public class SignUpController {
                 return;
             }
 
-            // Hash the password before storing it
-            String hashedPassword = hashPassword(passwordField.getText());
-
             // Get selected role in database format
             String roleDisplayName = roleComboBox.getValue();
             String roleValue = convertRoleToDatabaseFormat(roleDisplayName);
 
-            // Insert new user with role and hashed password
+            // Insert new user with role and plain text password
             String insertUserQuery = "INSERT INTO user (name, email, password, phonenumber, address, roles) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement insertStatement = conn.prepareStatement(insertUserQuery);
             insertStatement.setString(1, nameField.getText());
             insertStatement.setString(2, emailField.getText());
-            insertStatement.setString(3, hashedPassword);
+            insertStatement.setString(3, passwordField.getText()); // Storing plain text password
             insertStatement.setString(4, phoneField.getText());
             insertStatement.setString(5, addressField.getText());
             insertStatement.setString(6, roleValue);
@@ -106,70 +92,14 @@ public class SignUpController {
         }
     }
 
-    // Password hashing method
-    String hashPassword(String password) {
-        try {
-            SecureRandom random = new SecureRandom();
-            byte[] salt = new byte[16];
-            random.nextBytes(salt);
-
-            PBEKeySpec spec = new PBEKeySpec(
-                    password.toCharArray(),
-                    salt,
-                    ITERATIONS,
-                    KEY_LENGTH
-            );
-
-            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
-            byte[] hash = factory.generateSecret(spec).getEncoded();
-
-            return Base64.getEncoder().encodeToString(salt) + ":" +
-                    Base64.getEncoder().encodeToString(hash);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException("Error hashing password", e);
-        }
-    }
-
-    // Password verification method (for login)
-    public static boolean verifyPassword(String password, String storedHash) {
-        try {
-            String[] parts = storedHash.split(":");
-            byte[] salt = Base64.getDecoder().decode(parts[0]);
-            byte[] storedPassword = Base64.getDecoder().decode(parts[1]);
-
-            PBEKeySpec spec = new PBEKeySpec(
-                    password.toCharArray(),
-                    salt,
-                    ITERATIONS,
-                    KEY_LENGTH
-            );
-
-            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
-            byte[] testHash = factory.generateSecret(spec).getEncoded();
-
-            return slowEquals(storedPassword, testHash);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException("Error verifying password", e);
-        }
-    }
-
-    // Constant-time comparison to prevent timing attacks
-    private static boolean slowEquals(byte[] a, byte[] b) {
-        int diff = a.length ^ b.length;
-        for(int i = 0; i < a.length && i < b.length; i++) {
-            diff |= a[i] ^ b[i];
-        }
-        return diff == 0;
-    }
-
     private String convertRoleToDatabaseFormat(String displayName) {
         switch(displayName) {
             case "Client":
                 return "[\"ROLE_CLIENT\"]";
             case "Lawyer":
-                return "[\"ROLE_LAWYER\"]"; // Assuming lawyers should have admin privileges
+                return "[\"ROLE_LAWYER\"]";
             default:
-                return "[\"ROLE_CLIENT\"]"; // Default fallback
+                return "[\"ROLE_CLIENT\"]";
         }
     }
 
@@ -181,7 +111,7 @@ public class SignUpController {
         phoneField.clear();
         addressField.clear();
         errorLabel.setText("");
-        roleComboBox.getSelectionModel().selectFirst(); // Reset to Client
+        roleComboBox.getSelectionModel().selectFirst();
     }
 
     @FXML
@@ -192,32 +122,27 @@ public class SignUpController {
     private boolean validateInputs() {
         errorLabel.setText("");
 
-        // Name validation
         if (nameField.getText().trim().isEmpty()) {
             errorLabel.setText("Name cannot be empty");
             return false;
         }
 
-        // Email validation
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         if (!Pattern.compile(emailRegex).matcher(emailField.getText()).matches()) {
             errorLabel.setText("Invalid email format");
             return false;
         }
 
-        // Password validation
         if (passwordField.getText().length() < 8) {
             errorLabel.setText("Password must be at least 8 characters");
             return false;
         }
 
-        // Phone validation
         if (phoneField.getText().length() < 8) {
             errorLabel.setText("Phone number must be at least 8 digits");
             return false;
         }
 
-        // Address validation
         if (addressField.getText().trim().isEmpty()) {
             errorLabel.setText("Address cannot be empty");
             return false;
