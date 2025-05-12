@@ -1,6 +1,6 @@
 # LegalLink - Bridging the Gap Between Individuals and Legal Resources
 
-![LegalLink Logo]([https://looka.com/s/211159504](https://gyazo.com/4e383ff33d77d330c14d8685fc5143b4))
+![LegalLink Logo]([https://gyazo.com/4e383ff33d77d330c14d8685fc5143b4])
 
 LegalLink is a comprehensive platform designed to connect individuals with legal resources, offering a centralized space for justice-related services. Developed by a team of 3 students at ESPRIT School of Engineering.
 
